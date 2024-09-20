@@ -1,25 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import { useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+function GoogleContactSync() {
+    const login = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            // Get access token from response
+            const { access_token } = tokenResponse;
+            console.log('Access Token:', access_token);
+
+            // Send token to OAS for further processing
+            await axios.post('http://localhost:8001/google-contacts-sync', { access_token });
+        },
+        redirect_uri: 'http://localhost:3002/oauth2callback', // Change this as needed
+        scope: 'https://www.googleapis.com/auth/contacts.readonly',
+
+    });
+
+    return (
+        <div>
+            <h1>Google Contact Sync</h1>
+            <button onClick={() => login()}>Sync Contacts</button>
+        </div>
+    );
 }
 
-export default App;
+export default GoogleContactSync;
